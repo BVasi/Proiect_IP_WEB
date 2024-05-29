@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ai uitat parola</title>
+ <link rel="stylesheet" th:href="@{/css/forgotpassword.css}" >
+
+    <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+</head>
+<body>
+    <div class="reset-container">
+        <h2>Ai uitat parola</h2>
+        <form th:action="@{/getresetemail}" method="post">
+            <input type="email" name="resetEmail" placeholder="Adresa de email" required>
+            <input type="submit" value="Trimite codul">
+        </form>
+    </div>
+</body>
+</html>

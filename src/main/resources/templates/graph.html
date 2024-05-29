@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/charts.css}" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grafice Date Fiziologice</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:if="${popupMessage}">
+        /*<![CDATA[*/
+        alert("[[${popupMessage}]]");
+        /*]]>*/
+  </script>
+</head>
+<body>
+<nav class="navbar">
+    <div class="brand  display__logo">
+        <a th:href="@{/home}" class="nav__link"> <span class="logo">Vitalis</span></a>
+    </div>
+
+    <input type="checkbox" id="nav" class="hidden" />
+    <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+    <div class="nav">
+        <ul class="nav__items">
+            <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+            <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+            <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="select-container" style="margin: 20px; display: inline-block;">
+    <label for="numberOfDays">Selectati perioada:</label>
+    <select id="numberOfDays">
+        <option value="1">1 zi</option>
+        <option value="7">1 saptamana</option>
+        <option value="30">1 luna</option>
+    </select>
+</div>
+<div> <table>
+    <tr>
+        <th>Tensiune Arteriala</th>
+    </tr>
+    <tr>
+        <td>
+            <canvas id="BLOOD_PRESSURE"></canvas>
+        </td>
+    </tr>
+</table>
+    <table>
+        <tr>
+            <th>Puls</th>
+        </tr>
+        <tr>
+            <td>
+                <canvas id="PULSE"></canvas>
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <th>Temperatura</th>
+        </tr>
+        <tr>
+            <td>
+                <canvas id="BODY_TEMPERATURE"></canvas>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th>Greutate</th>
+        </tr>
+        <tr>
+            <td>
+                <canvas id="WEIGHT"></canvas>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th>Glicemie</th>
+        </tr>
+        <tr>
+            <td>
+                <canvas id="GLUCOSE"></canvas>
+            </td>
+        </tr>
+    </table></div>
+
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var sensorsData = /*[[${sensorsData}]]*/ {};
+        var graphId = null;
+        var labels = [];
+        var values = [];
+        Object.entries(sensorsData).forEach(([label, dataList]) => {
+            graphId = label;
+            dataList.forEach(sensorData => {
+                labels.push(sensorData.date);
+                values.push(sensorData.data);
+            });
+            populateGraph(graphId, labels, values);
+            labels = [];
+            values = [];
+        });
+        /*]]>*/
+
+        const savedValue = localStorage.getItem('selectedOption');
+        if (savedValue)
+        {
+            document.getElementById('numberOfDays').value = savedValue;
+        }
+        const initialURL = window.location.href;
+        document.getElementById('numberOfDays').addEventListener('change', function() {
+            const selectValue = this.value;
+            localStorage.setItem('selectedOption', selectValue);
+
+            const event = new CustomEvent('selectChanged', {
+                detail: {
+                    value: selectValue,
+                    initialURL: initialURL
+                }
+            });
+            document.dispatchEvent(event);
+        });
+
+        document.addEventListener('selectChanged', function(event) {
+            const initialURL = event.detail.initialURL;
+            const selectValue = event.detail.value;
+            const updatedURL = initialURL.replace(/\/\d+$/, `/${selectValue}`);
+            console.log(updatedURL);
+            fetch(updatedURL, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            }).then(response => {
+                if (response.ok)
+                {
+                    window.location.href = updatedURL;
+                }
+                else
+                {
+                    //
+                }
+            }).catch(error => {
+                //
+            });
+        });
+
+        function populateGraph(graphId, myLabels, values)
+        {
+            const ctx = document.getElementById(graphId).getContext('2d');
+            const chart = new Chart(ctx,
+                {
+                    type:'line',
+                    data:{
+                        labels: myLabels,
+                        datasets: [{
+                            label: graphId,
+                            data: values,
+                            borderColor:'rgb(75,192,192)',
+                            borderWidth: 1
+                            }]
+                    },
+                    options:
+                    {
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        scales:
+                        {
+                            y:
+                            {
+                                beginAtZero: true
+                            }
+                        },
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

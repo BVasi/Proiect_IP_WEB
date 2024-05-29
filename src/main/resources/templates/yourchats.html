@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/chathistory.css}" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Chat History</title>
+    <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="brand  display__logo">
+                <a th:href="@{/home}" class="nav__link"> <span class="logo">Vitalis</span></a>
+            </div>
+
+            <input type="checkbox" id="nav" class="hidden" />
+            <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+            <div class="nav">
+                <ul class="nav__items">
+                    <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+                    <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+                    <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Istoric Chat</h1>
+        <div id="chating">
+            <a th:each="chat : ${chatHistory}" class="chat-entry"
+               th:text="${chat.otherUser.firstName + ' ' + chat.otherUser.lastName + (chat.messages != null ? (chat.messages.size() > 0 ? ': ' + chat.messages[0].content : '') : '')}"
+               th:href="@{chat/{chatId}(chatId=${chat.id})}"
+               role="button"
+            >
+            </a>
+        </div>
+        <div class="form-group">
+            <label for="searchInput">Cautati o persoana pentru a incepe un chat:</label>
+            <input type="text" id="searchInput" name="searchInput" placeholder="Introduceti nume...">
+        </div>
+    </div>
+<div class="container1">
+    <h1 th:if="${foundUsers != null}">Rezultate cautare:</h1>
+    <div th:if="${foundUsers != null}">
+        <a th:each="foundUser : ${foundUsers}" class="chat-entry" role="button"
+           th:text="${foundUser.firstName + ' ' + foundUser.lastName}"
+           th:attr="data-user-id=${foundUser.id}"
+           onclick="postToChat(this.getAttribute('data-user-id'))">
+        </a>
+    </div>
+</div>
+
+
+    </div>
+
+<script>
+
+
+   document.getElementById('searchInput').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        var inputValue = this.value;
+        if(!inputValue)
+        {
+            return;
+        }
+        if (inputValue) {
+            var formData = new FormData();
+            formData.append('name', inputValue);
+
+            fetch('/yourchats', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.ok && window.location.reload())
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    }
+});
+
+function postToChat(otherUserId)
+{
+    var formData = new FormData();
+    formData.append('id', otherUserId);
+
+    fetch('/chat', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            console.error('Redirection failed or server response did not redirect to chat');
+        }
+    })
+    .catch(error => {
+        console.error('Error while processing the request:', error);
+    });
+}
+
+
+
+
+document.getElementById('searchInput').addEventListener('keyup', function() {
+  var input, filter, div, anchors, i, txtValue;
+  input = document.getElementById("searchInput");
+  filter = input.value.toUpperCase();
+  div = document.getElementById("chating");
+  anchors = div.getElementsByTagName("a");
+
+  for (i = 0; i < anchors.length; i++) {
+    txtValue = anchors[i].textContent || anchors[i].innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      anchors[i].style.display = "";
+    } else {
+      anchors[i].style.display = "none";
+    }
+  }
+});
+
+
+
+
+
+</script>
+
+</body>
+</html>

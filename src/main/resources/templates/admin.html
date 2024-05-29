@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <link rel="stylesheet" th:href="@{/css/admin.css}" >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Page</title>
+  <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand  display__logo">
+    <a th:href="@{/home}" class="nav__link"> <span class="logo">Vitalis</span></a>
+  </div>
+
+  <input type="checkbox" id="nav" class="hidden" />
+  <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+  <div class="nav">
+    <ul class="nav__items">
+      <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+      <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+      <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+    </ul>
+  </div>
+</nav>
+<div style="padding-top: 4%;">
+</div>
+
+<div class="container">
+  <div class="form-group">
+    <label for="searchInput">Cauta user dupa nume:</label>
+    <input type="text" id="searchInput" name="searchInput" placeholder="Introduceti numele...">
+  </div>
+</div>
+
+<table id="userTable">
+  <thead>
+  <tr>
+    <th>Nume Complet</th>
+    <th>ID</th>
+    <th>CNP</th>
+    <th>Numar de telefon</th>
+    <th>Modificare rol</th>
+    <th>Stergere</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr scope="row" th:each="user : ${userList}">
+    <td th:text="${user.firstName + ' ' + user.lastName}"></td>
+    <td th:text="${user.id}"></td>
+    <td th:text="${user.cnp}"></td>
+    <td th:text="${user.phoneNumber}"></td>
+    <td>
+      <select id="accessType" th:attr="data-id=${user.id}" th:onchange="postAccessType(this.getAttribute('data-id'), this.value)">
+        <option th:each="type : ${T(com.project.ip.model.AccessType).values()}"
+                th:value="${type}" th:text="${#strings.capitalize(type.name())}"
+                th:selected="${type == user.accessType}"></option>
+      </select>
+    </td>
+    <td class="action-buttons">
+      <button th:attr="data-userId=${user.id}" th:onclick="postDelete(this.getAttribute('data-userId'))">Stergere</button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<a th:href="@{/signup}" class="btn">Create New Account</a>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<script>
+  function postDelete(userId)
+  {
+      if (confirm("Esti sigur ca vrei sa stergi acest utilizator?"))
+      {
+          postData = {
+            "id": userId
+          };
+          fetch('/admin', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(postData)
+          })
+          .then(response =>
+          {
+              if(!response.ok)
+              {
+                  throw new Error('Failed');
+              }
+              alert("User-ul a fost sters cu succes!");
+              window.location.reload();
+          })
+          .catch(error =>
+          {
+              console.error('Eroare', error);
+          });
+      }
+  }
+
+  function postAccessType(userId, accessType)
+    {
+        if (confirm("Esti sigur ca vrei sa modifici rolul acestui utilizator?"))
+        {
+            postData = {
+              "id": userId,
+              "accessType": accessType
+            };
+            fetch('/admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postData)
+            })
+            .then(response =>
+            {
+                if(!response.ok)
+                {
+                    throw new Error('Failed');
+                }
+                alert("Rolul utilizatorului a fost modificat cu succes!");
+                window.location.reload();
+            })
+            .catch(error =>
+            {
+                console.error('Error', error);
+            });
+        }
+    }
+
+document.getElementById('searchInput').addEventListener('keyup', function() {
+var input, filter, table, tr, td, i, txtValue;
+input = document.getElementById("searchInput");
+filter = input.value.toUpperCase();
+table = document.getElementById("userTable");
+tr = table.getElementsByTagName("tr");
+
+for (i = 0; i < tr.length; i++) {
+  td = tr[i].getElementsByTagName("td")[0];
+  if (td) {
+    txtValue = td.textContent || td.innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      tr[i].style.display = "";
+    } else {
+      tr[i].style.display = "none";
+    }
+  }
+}
+});
+</script>
+
+</body>
+
+</html>

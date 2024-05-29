@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/chat.css}">
+    <title>Chat</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            let stompClient;
+            const chatId = /*[[${chatId}]]*/ 'chatId-placeholder';
+            const loggedInUserId = /*[[${loggedInUserId}]]*/ 'loggedInUserId-placeholder';
+
+            if (!chatId || !loggedInUserId) {
+                console.error('chatId or loggedInUserId is not set');
+                return;
+            }
+
+            stompClient = new StompJs.Client({
+                brokerURL: 'ws://localhost:8081/sendmessage'
+            });
+
+            stompClient.onConnect = (frame) => {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/new_message/' + chatId, (message) => {
+                    updateUI(message.body);
+                });
+            };
+
+            stompClient.onWebSocketError = (error) => {
+                console.error('Error with websocket', error);
+            };
+
+            stompClient.onStompError = (frame) => {
+                console.error('Broker reported error: ' + frame.headers['message']);
+                console.error('Additional details: ' + frame.body);
+            };
+
+            stompClient.activate();
+
+            function updateUI(message) {
+                console.log('Updating UI with new message'); // Debugging log
+                const messageData = JSON.parse(message);
+                const messageContent = messageData.content;
+                const senderId = messageData.senderId;
+                const isSentByLoggedInUser = loggedInUserId === senderId;
+                const messageClass = isSentByLoggedInUser ? 'sent' : 'received';
+                const newMessage = $('<div class="message ' + messageClass + '">').append(
+                    $('<p>').text(messageContent)
+                );
+                $('.message-container').append(newMessage);
+                scrollToBottom();
+            }
+
+            $("#messageForm").off('submit').on('submit', function(event) {
+                event.preventDefault();
+                const messageContent = $("#messageToAdd").val().trim();
+
+                if (!messageContent) {
+                    console.log('Message content is empty, exiting function.');
+                    return;
+                }
+
+                console.log('Publishing message:', messageContent);
+                stompClient.publish({
+                    destination: "/chat/sendmessage",
+                    body: JSON.stringify({'content': messageContent, 'chatId': chatId})
+                });
+
+                $("#messageToAdd").val("");
+            });
+        });
+
+    function postAddToMedic(pacientId, chatId)
+    {
+        if (confirm("Esti sigur ca vrei sa adaugi pacientul acesta in lista ta?"))
+        {
+            postData = {
+                "id": pacientId,
+                "chatId": chatId
+            };
+            fetch('/addtomedic', {
+                method: 'POST',
+                headers: {
+                        'Content-Type': 'application/json',
+                    },
+                body: JSON.stringify(postData)
+            })
+            .then(response =>
+            {
+                if(!response.ok)
+                {
+                    throw new Error('Failed');
+                }
+                window.location.reload();
+            })
+            .catch(error =>
+            {
+                console.error('Error', error);
+            });
+        }
+    }
+
+   window.onload = function() {
+    window.scrollToBottom = function() {
+        var messageContainer = document.getElementById('message-container');
+        if(messageContainer) {
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+    }
+    window.scrollToBottom();
+}
+
+    </script>
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="brand display__logo">
+            <a th:href="@{/home}" class="nav__link"><span class="logo">Vitalis</span></a>
+        </div>
+
+        <input type="checkbox" id="nav" class="hidden">
+        <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+        <div class="nav">
+            <ul class="nav__items">
+                <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+                <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+                <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="name" th:text="${chat.otherUser.firstName} + ' ' + ${chat.otherUser.lastName}">
+    </div>
+
+    <div class="message-container" id="message-container" th:if="${chat != null and chat.messages != null}">
+        <div th:each="message : ${chat.messages}">
+            <div class="message sent" th:if="${message.sendingUserId == loggedInUserId}">
+                <p th:text="${message.content}"></p>
+            </div>
+            <div class="message received" th:if="${message.sendingUserId != loggedInUserId}">
+                <p th:text="${message.content}"></p>
+            </div>
+        </div>
+    </div>
+    <form id="messageForm">
+        <input type="text" id="messageToAdd" placeholder="Introduceti mesaj...">
+        <button type="submit" class="send-button">Send</button>
+    </form>
+    <div style="padding: 1%;"></div>
+    <button onclick="scrollToBottom()" class="scroll-button">Ultimul Mesaj</button>
+    <button class="scroll-button"
+            th:if="${loggedInUserType == T(com.project.ip.model.AccessType).MEDIC}"
+            th:attr="data-pacientId=${chat.otherUser.id}, data-chatId=${chat.id}"
+            th:onclick="postAddToMedic(this.getAttribute('data-pacientId'), this.getAttribute('data-chatId'))">
+        Adaugare in lista personala
+    </button>
+</div>
+
+</body>
+</html>

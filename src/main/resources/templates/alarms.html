@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/alarme.css}" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarme</title>
+    <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="brand  display__logo">
+                <a th:href="@{/home}" class="nav__link"> <span class="logo">Vitalis</span></a>
+            </div>
+
+            <input type="checkbox" id="nav" class="hidden" />
+            <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+            <div class="nav">
+                <ul class="nav__items">
+                    <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+                    <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+                    <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <table>
+            <tr>
+                <th>Tip Alarma</th>
+                <th>Informatii</th>
+                <th>Rezolvare</th>
+            </tr>
+            <tr scope="row" th:each="alarm : ${alarms}" th:if="${!alarm.isResolved}">
+                <td th:text="${alarm.alarmType}"></td>
+                <td th:text="${alarm.additionalText}"></td>
+                <td><input type="checkbox" name="e_rezolvata" th:checked="${alarm.isResolved}" th:attr="data-alarmId=${alarm.id}" onchange="sendPost(this.getAttribute('data-alarmId'), this.checked)"></td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+
+<script>
+    function sendPost(alarmId, isResolved)
+    {
+        isResolved=true;
+        fetch('/alarms', {
+            method: 'POST',
+            headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            body: `id=${alarmId}&isResolved=${isResolved}`,
+        })
+        .then(response =>
+        {
+            if(!response.ok)
+            {
+                throw new Error('Failed');
+            }
+            alert("Statusul alarmei a fost modificat cu succes!");
+            window.location.reload();
+        })
+        .catch(error =>
+        {
+            console.error('Error with alarm', error);
+        });
+
+    }
+</script>
+</html>

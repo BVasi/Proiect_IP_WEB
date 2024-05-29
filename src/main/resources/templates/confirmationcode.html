@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirmare cod</title>
+    <link rel="stylesheet" th:href="@{/css/confirmationcode.css}" >
+
+    <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+</head>
+<body>
+    <div class="confirm-container">
+        <h2>Confirmare cod</h2>
+        <form th:action="@{/confirmationcode}" method="post">
+            <input type="text" name="confirmationCode" placeholder="Codul primit pe email" required>
+            <input type="submit" value="Confirma codul">
+        </form>
+    </div>
+</body>
+</html>

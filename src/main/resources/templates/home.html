@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/home.css}" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+</head>
+<body>
+<nav class="navbar">
+    <div class="brand  display__logo">
+        <a th:href="@{/home}" class="nav__link"> <span class="logo">Vitalis</span></a>
+    </div>
+
+    <input type="checkbox" id="nav" class="hidden" />
+    <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+    <div class="nav">
+        <ul class="nav__items">
+            <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+            <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+            <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+        </ul>
+    </div>
+</nav>
+    <main>
+        <div class="container" style="background-color: #FFF8E1; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+            <div class="option" th:if="${loggedInUserType == T(com.project.ip.model.AccessType).PACIENT}">
+              <a th:href="@{addallergy}">Adaugare Alergie</a>
+            </div>
+            <div class="option" th:if="${loggedInUserType != T(com.project.ip.model.AccessType).PACIENT}">
+                <a th:href="@{stuffmenu}">Vizualizare Lista Pacienti</a>
+            </div>
+            <div class="option" th:if="${loggedInUserType == T(com.project.ip.model.AccessType).PACIENT}">
+              <a th:href="@{medicalrecord/{userId}(userId=${userId})}">Vizualizare Fisa Medicala</a>
+            </div>
+            <div class="option">
+              <a th:href="@{yourchats}">Vizualizare Istoric Mesaje</a>
+            </div>
+            <div class="option" th:if="${loggedInUserType == T(com.project.ip.model.AccessType).PACIENT}">
+                <a th:href="@{graph/{userId}/{numberOfDays}(userId=${userId}, numberOfDays=1)}">Vizualizare Grafice</a>
+            </div>
+            <div class="option" th:if="${loggedInUserType == T(com.project.ip.model.AccessType).ADMIN}">
+                <a th:href="@{admin}">Modificare User</a>
+            </div>
+          </div>
+          
+    </main>
+    
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>

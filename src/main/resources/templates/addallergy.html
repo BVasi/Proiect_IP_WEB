@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/addallergy.css}" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="brand  display__logo">
+        <a th:href="@{/home}" class="nav__link"> <span class="logo">Vitalis</span></a>
+    </div>
+
+    <input type="checkbox" id="nav" class="hidden" />
+    <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+    <div class="nav">
+        <ul class="nav__items">
+            <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+            <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+            <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+        </ul>
+    </div>
+</nav>
+    <div class="container">
+        <form th:action="@{/addallergy}" method="post" th:object="${allergy}">
+            <h2>Adaugare Alergie:</h2>
+            <div class="form-group">
+                <label for="allergy">Alergie:</label>
+                <input type="text" id="allergy" name="name" th:value="${allergy.name}" required>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

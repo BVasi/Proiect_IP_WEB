@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/signup.css}" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inregistrare</title>
+
+
+    <script th:if="${popupMessage}">
+        /*<![CDATA[*/
+        alert("[[${popupMessage}]]");
+        /*]]>*/
+    </script>
+</head>
+
+<body>
+<div style="padding-top: 1%;">
+</div>
+<div class="container">
+    <h1>Inregistrare</h1>
+    <form th:action="@{/signup}" method="post" th:object="${user}" >
+        <h2>Informatii Cont:</h2>
+        <div class="form-group" >
+            <label for="firstName">Prenume:</label>
+            <input type="text" id="firstName" name="firstName" th:value="${user.firstName}" required>
+        </div>
+        <div class="form-group" >
+            <label for="lastName">Nume:</label>
+            <input type="text" id="lastName" name="lastName" th:value="${user.lastName}" required>
+        </div>
+        <div class="form-group" >
+            <label for="cnp">CNP:</label>
+            <input type="text" id="cnp" name="cnp" th:value="${user.cnp}" required pattern=".{13,13}" title="CNP must be exactly 13 characters">
+        </div>
+        <div class="form-group" >
+            <label for="age">Varsta:</label>
+            <input type="text" id="age" name="age" th:value="${user.age}" required>
+        </div>
+        <div class="form-group" >
+            <label for="street">Strada:</label>
+            <input type="text" id="street" name="street" th:value="${user.street}" required>
+        </div>
+        <div class="form-group" >
+            <label for="city">Oras:</label>
+            <input type="text" id="city" name="city" th:value="${user.city}" required>
+        </div>
+        <div class="form-group" >
+            <label for="county">Judet:</label>
+            <input type="text" id="county" name="county" th:value="${user.county}" required>
+        </div>
+        <div class="form-group" >
+            <label for="country">Tara:</label>
+            <input type="text" id="country" name="country" th:value="${user.country}" required>
+        </div>
+        <div class="form-group" >
+            <label for="phoneNumber">Numar de telefon:</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" th:value="${user.phoneNumber}" required>
+        </div>
+        <div class="form-group" >
+            <label for="emailAddress">Email:</label>
+            <input type="email" id="emailAddress" name="emailAddress" th:value="${user.emailAddress}" required>
+        </div>
+        <div class="form-group" >
+            <label for="profession">Profesie:</label>
+            <input type="text" id="profession" name="profession" th:value="${user.profession}" required>
+        </div>
+        <div class="form-group" >
+            <label for="workplace">Loc de munca:</label>
+            <input type="text" id="workplace" name="workplace" th:value="${user.workplace}" required>
+        </div>
+        <div class="form-group">
+            <label for="accessType">Selectati rolul utilizatorului:</label>
+            <select id="accessType" name="accessType" th:if="${isAdmin}">
+                <option th:each="type : ${T(com.project.ip.model.AccessType).values()}"
+                        th:value="${type}" th:text="${#strings.capitalize(type.name())}"
+                        th:selected="${type == user.accessType}"></option>
+            </select>
+        </div>
+        <button type="submit">Inregistrare</button>
+    </form>
+</div>
+</body>
+</html>

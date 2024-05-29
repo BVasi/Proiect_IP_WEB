@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/medicalrecord.css}" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fisa Medicala</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="brand  display__logo">
+                <a th:href="@{/home}" class="nav__link"> <span class="logo">Vitalis</span></a>
+            </div>
+
+            <input type="checkbox" id="nav" class="hidden" />
+            <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+            <div class="nav">
+                <ul class="nav__items">
+                    <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+                    <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+                    <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div style="padding-top: 4%;">
+    </div>
+    <div class="container">
+        <h1>Fisa Medicala</h1>
+        <div>
+            <h2>Detalii Personale</h2>
+            <table>
+                <tr>
+                    <th>Nume</th>
+                    <td th:text="${medicalRecord.userContext.lastName}"></td>
+                </tr>
+                <tr>
+                    <th>Prenume</th>
+                    <td th:text="${medicalRecord.userContext.firstName}"></td>
+                </tr>
+                <tr>
+                    <th>CNP</th>
+                    <td th:text="${medicalRecord.userContext.cnp}"></td>
+                </tr>
+                <tr>
+                    <th>Vârstă</th>
+                    <td th:text="${medicalRecord.userContext.age}"></td>
+                </tr>
+                <tr>
+                    <th>Adresa</th>
+                    <td th:text="${medicalRecord.userContext.country  + ', ' + medicalRecord.userContext.county+ ', ' + medicalRecord.userContext.city+ ', ' + medicalRecord.userContext.street}"></td>
+                </tr>
+                <tr>
+                    <th>Număr Telefon</th>
+                    <td th:text="${medicalRecord.userContext.phoneNumber}"></td>
+                </tr>
+                <tr>
+                    <th>Adresa Email</th>
+                    <td th:text="${medicalRecord.userContext.emailAddress}"></td>
+                </tr>
+                <tr>
+                    <th>Profesie</th>
+                    <td th:text="${medicalRecord.userContext.profession}"></td>
+                </tr>
+                <tr>
+                    <th>Loc de Muncă</th>
+                    <td th:text="${medicalRecord.userContext.workplace}"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table style="width: 100%;">
+                <tr>
+                    <th style="display: flex; align-items: center;">
+                        <h2 style="margin-right: 10px;">Alergii:</h2>
+                    </th>
+                    <td>
+                        <span th:each="allergy, iter : ${medicalRecord.allergies}">
+                            <span th:text="${allergy.name}"></span>
+                            <span th:if="${!iter.last}">,</span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <div style="display: flex; flex-direction: row; align-items: center;">
+                <h2 style="margin-right: 10px;">Consultatii</h2>
+                <i class="fas fa-plus-circle change-icon" style="font-size: 24px; cursor: pointer;" th:if="${loggedInUserType != T(com.project.ip.model.AccessType).PACIENT}"
+                   onclick="addRow()"></i>
+            </div>
+        </div>
+        <table id="consultation-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Diagnostic</th>
+                    <th>Tratament</th>
+                    <th>Recomandare</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                    <tr scope="row" th:each="examination : ${medicalRecord.examinations}">
+                        <td th:text="${examination.examinationDate}"></td>
+                        <td th:text="${examination.diagnostic}"></td>
+                        <td th:text="${examination.cure}"></td>
+                        <td th:text="${examination.recomandation}"></td>
+                        <td th:if="${loggedInUserType != T(com.project.ip.model.AccessType).PACIENT}">
+                            <i class="fa fa-pencil"></i></td>
+                    </tr>
+                    <tr id="newrow" style="display:none;">
+                        <form id="myForm" th:action="@{'/medicalrecord/' + ${userId}}" method="post" th:object="${examination}" >
+                            <td><input type="text" id="examinationDate" name="examinationDate" th:value="${examination.examinationDate}"></td>
+                            <td><input type="text" id="diagnostic" name="diagnostic" th:value="${examination.diagnostic}"></td>
+                            <td><input type="text" id="cure" name="cure" th:value="${examination.cure}"></td>
+                            <td><input type="text" id="recomandation" name="recomandation" th:value="${examination.recomandation}"></td>
+                            <td><button type="submit"> Adaugare </button></td>
+                        </form>
+                    </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <input type="hidden" id="user-id" th:value="${userId}">
+    <script>
+    function makeVisible() {
+
+    var visible = document.getElementById("newrow");
+    visible.style.display="block";
+
+    }
+
+    function addRow() {
+    var table = document.getElementById("consultation-table");
+    var row = table.insertRow(-1);
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
+    var cell4 = row.insertCell(3);
+    var cell5 = row.insertCell(4);
+
+    var currentDate = new Date();
+
+    const options = {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short'
+    };
+
+    const gbDate = new Intl.DateTimeFormat('en-GB', options).format(currentDate);
+    let formattedDate = gbDate;
+    const lastCommaIndex = formattedDate.lastIndexOf(",");
+    if (lastCommaIndex !== -1)
+    {
+        formattedDate = formattedDate.substring(0, lastCommaIndex) + formattedDate.substring(lastCommaIndex + 1);
+    }
+    formattedDate = formattedDate.replace("EEST", "GMT");
+
+    cell1.innerHTML = "<div class='editable'>" + formattedDate + "</div>";
+    cell2.innerHTML = "<div contenteditable='true' class='editable'></div>";
+    cell3.innerHTML = "<div contenteditable='true' class='editable'></div>";
+    cell4.innerHTML = "<div contenteditable='true' class='editable'></div>";
+    cell5.innerHTML = "<button onclick='submitForm()'>Adauga</button>";
+}
+
+    async function submitForm() {
+  var table = document.getElementById("consultation-table");
+  var userId = document.getElementById("user-id").value;
+  var lastRow = table.rows[table.rows.length - 1];
+
+  var data = lastRow.cells[0].innerText;
+  var diagnostic = lastRow.cells[1].innerText;
+  var tratament = lastRow.cells[2].innerText;
+  var recomandare = lastRow.cells[3].innerText;
+
+  var postData = {
+    "examinationDate": data.toString(),
+    "diagnostic": diagnostic,
+    "cure": tratament,
+    "recomandation": recomandare
+  };
+
+  var response = await fetch('/medicalrecord/' + userId , {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(postData)
+  });
+
+  if (response.ok) {
+    console.log("POST request was successful");
+  } else {
+    console.log("POST request failed");
+  }
+
+  location.reload();
+}
+
+
+</script>
+</body>
+</html>

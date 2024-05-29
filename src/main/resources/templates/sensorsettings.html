@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/sensorsettings.css}" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificare Date</title>
+    <script th:if="${popupMessage}">
+    /*<![CDATA[*/
+    alert("[[${popupMessage}]]");
+    /*]]>*/
+  </script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="brand  display__logo">
+                <a th:href="@{/home}" class="nav__link"> <span class="logo">Vitalis</span></a>
+            </div>
+
+            <input type="checkbox" id="nav" class="hidden" />
+            <label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+            <div class="nav">
+                <ul class="nav__items">
+                    <li class="nav__item"><a th:href="@{/home}" class="nav__link">Home</a></li>
+                    <li class="nav__item"><a th:href="@{/yourchats}" class="nav__link">Chat</a></li>
+                    <li class="nav__item"><a th:href="@{/logout}" class="nav__link">Log Out</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div style="padding-top: 4%;">
+    </div>
+    <div class="senzational">
+        <form th:action="@{'/sensorsettings/' + ${userId}}" method="post" th:object="${sensorsSettings}" >
+            <div class="center-this-shit">
+                <label for="min_tensiune_arteriala">Minim tensiune arterială:</label>
+                <input type="text" id="min_tensiune_arteriala" name="sensorsReferences.minimumBloodPressure" th:value="${sensorsSettings.sensorsReferences.minimumBloodPressure}">
+                <span class="unit">mmHg</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="max_tensiune_arteriala">Maxim tensiune arterială:</label>
+                <input type="text" id="max_tensiune_arteriala" name="sensorsReferences.maximumBloodPressure" th:value="${sensorsSettings.sensorsReferences.maximumBloodPressure}">
+                <span class="unit">mmHg</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="min_puls">Minim puls:</label>
+                <input type="text" id="min_puls" name="sensorsReferences.minimumPulse" th:value="${sensorsSettings.sensorsReferences.minimumPulse}">
+                <span class="unit">bpm</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="max_puls">Maxim puls:</label>
+                <input type="text" id="max_puls" name="sensorsReferences.maximumPulse" th:value="${sensorsSettings.sensorsReferences.maximumPulse}">
+                <span class="unit">bpm</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="min_temperatura_corporala">Minim temperatură corporală:</label>
+                <input type="text" id="min_temperatura_corporala" name="sensorsReferences.minimumBodyTemperature" th:value="${sensorsSettings.sensorsReferences.minimumBodyTemperature}">
+                <span class="unit">°C</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="max_temperatura_corporala">Maxim temperatură corporală:</label>
+                <input type="text" id="max_temperatura_corporala" name="sensorsReferences.maximumBodyTemperature" th:value="${sensorsSettings.sensorsReferences.maximumBodyTemperature}">
+                <span class="unit">°C</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="min_greutate">Minim greutate:</label>
+                <input type="text" id="min_greutate" name="sensorsReferences.minimumWeight" th:value="${sensorsSettings.sensorsReferences.minimumWeight}">
+                <span class="unit">kg</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="max_greutate">Maxim greutate:</label>
+                <input type="text" id="max_greutate" name="sensorsReferences.maximumWeight" th:value="${sensorsSettings.sensorsReferences.maximumWeight}">
+                <span class="unit">kg</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="min_glicemie">Minim glicemie:</label>
+                <input type="text" id="min_glicemie" name="sensorsReferences.minimumGlucose" th:value="${sensorsSettings.sensorsReferences.minimumGlucose}">
+                <span class="unit">mg/dL</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="max_glicemie">Maxim glicemie:</label>
+                <input type="text" id="max_glicemie" name="sensorsReferences.maximumGlucose" th:value="${sensorsSettings.sensorsReferences.maximumGlucose}">
+                <span class="unit">mg/dL</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="min_temperatura_ambientala">Minim temperatură ambientală:</label>
+                <input type="text" id="min_temperatura_ambientala" name="sensorsReferences.minimumRoomTemperature" th:value="${sensorsSettings.sensorsReferences.minimumRoomTemperature}">
+                <span class="unit">°C</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="max_temperatura_ambientala">Maxim temperatură ambientală:</label>
+                <input type="text" id="max_temperatura_ambientala" name="sensorsReferences.maximumRoomTemperature" th:value="${sensorsSettings.sensorsReferences.maximumRoomTemperature}">
+                <span class="unit">°C</span>
+            </div>
+            <div class="center-this-shit">
+                <label for="perioada_esantionare">Perioada de eșantionare:</label>
+                <select id="perioada_esantionare" name="samplingPeriod">
+                    <option th:each="period : ${T(com.project.ip.model.SamplingPeriod).values()}"
+                            th:value="${period}" th:text="${'Perioada de eșantionare (' + period + ')'}"
+                            th:selected="${period == sensorsSettings.samplingPeriod}">
+                    </option>
+                </select>
+            </div>
+            <input type="submit" value="Salvează modificările">
+        </form>
+    </div>
+</body>
+</html>
