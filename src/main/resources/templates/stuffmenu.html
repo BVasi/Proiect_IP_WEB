@@ -40,7 +40,7 @@
     <tbody>
     <tr scope="row" th:each="pacient : ${pacientList}">
         <td th:text="${pacient.firstName + ' ' + pacient.lastName}"></td>
-        <td th:text="${pacient.phoneNumber}"></td>
+        <td th:text="${pacient.cnp}"></td>
         <td class="action-buttons">
             <button th:onclick="|window.location.href='/medicalrecord/' + ${pacient.id}|">Fisa medicala</button>
             <button th:onclick="|window.location.href='/alarms/' + ${pacient.id}|">Alarme</button>
